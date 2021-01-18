@@ -82,8 +82,6 @@ func genericRandomVector(dimension int, kind reflect.Kind) Vector {
 			v.Set(i, float32(rand.Float32()))
 		case reflect.Float64:
 			v.Set(i, float64(rand.Float64()))
-		default:
-			log.Panicf("genericVector.genericRandomVector: Unknown Kind for a Vector: %v\n", kind)
 		}
 	}
 
@@ -417,8 +415,6 @@ func (v genericVector) Equal(w Vector) bool {
 			equal = (v.Get(i).(float32) == w.Get(i).(float32))
 		case reflect.Float64:
 			equal = (v.Get(i).(float64) == w.Get(i).(float64))
-		default:
-			log.Panicf("genericVector.Divs: Unknown Kind for a Vector: %v\n", v.Kind())
 		}
 	}
 

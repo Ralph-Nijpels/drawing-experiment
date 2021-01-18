@@ -2,8 +2,10 @@ package main
 
 import (
 	"log"
+	"math"
 	"time"
 
+	"./model"
 	"./number/matrix"
 	"./number/vector"
 
@@ -44,6 +46,13 @@ func drawLine(from vector.Vector, to vector.Vector, pixels []byte) {
 	}
 }
 
+// Draw a line diagram of a single triangular Mesh
+func drawMesh(mesh model.Mesh, projection matrix.Matrix, pixels []byte) {
+	drawLine(projection.Mulv(mesh.GetVertex(0)), projection.Mulv(mesh.GetVertex(1)), pixels)
+	drawLine(projection.Mulv(mesh.GetVertex(1)), projection.Mulv(mesh.GetVertex(2)), pixels)
+	drawLine(projection.Mulv(mesh.GetVertex(2)), projection.Mulv(mesh.GetVertex(0)), pixels)
+}
+
 func main() {
 
 	err := sdl.Init(sdl.INIT_EVERYTHING)
@@ -81,16 +90,9 @@ func main() {
 	var frameStart time.Time
 	var elapsedTime float32
 
-	// Not so nice wat to establish points, we have to update 'vector' a litle. To bad I did not understand a thing about
-	// reflection at that point
-	ftl := vector.FilledVector([]float32{100.0, 100.0, 100.0})
-	ftr := vector.FilledVector([]float32{300.0, 100.0, 100.0})
-	fbr := vector.FilledVector([]float32{300.0, 300.0, 100.0})
-	fbl := vector.FilledVector([]float32{100.0, 300.0, 100.0})
-	btl := vector.FilledVector([]float32{100.0, 100.0, 300.0})
-	btr := vector.FilledVector([]float32{300.0, 100.0, 300.0})
-	bbr := vector.FilledVector([]float32{300.0, 300.0, 300.0})
-	bbl := vector.FilledVector([]float32{100.0, 300.0, 300.0})
+	// Let's define a simple box arround the origin
+	box := model.NewBox(100.0, 50.0, 25.0)
+	angle := 0.0
 
 	// Big game loop
 	for {
@@ -105,7 +107,21 @@ func main() {
 
 		clear(pixels)
 
-		// Update elements
+		// rotate the box
+		rotate := matrix.FilledMatrix([][]float32{
+			{float32(math.Cos(angle)), float32(math.Sin(angle)), 0.0},
+			{float32(-math.Sin(angle)), float32(math.Cos(angle)), 0.0},
+			{0.0, 0.0, 1.0},
+		})
+		box.SetRotation(rotate)
+
+		// move the box
+		move := vector.FilledVector([]float32{
+			float32(winWidth / 2), float32(0.0), float32(winHeight / 2),
+		})
+		box.SetPosition(move)
+
+		// Create projection matrix
 		sin30 := float32(0.5)
 		cos30 := float32(0.866025)
 		project := matrix.FilledMatrix([][]float32{
@@ -113,39 +129,16 @@ func main() {
 			{0.0, sin30, 1.0},
 		})
 
-		// Draw box
-		drawLine(project.Mulv(ftl), project.Mulv(ftr), pixels)
-		drawLine(project.Mulv(ftr), project.Mulv(fbr), pixels)
-		drawLine(project.Mulv(fbr), project.Mulv(fbl), pixels)
-		drawLine(project.Mulv(fbl), project.Mulv(ftl), pixels)
+		// Draw box 2.0
+		for index := 0; index < box.Meshes(); index++ {
+			drawMesh(box.GetMesh(index), project, pixels)
+		}
 
-		drawLine(project.Mulv(ftl), project.Mulv(btl), pixels)
-		drawLine(project.Mulv(ftr), project.Mulv(btr), pixels)
-		drawLine(project.Mulv(fbr), project.Mulv(bbr), pixels)
-		drawLine(project.Mulv(fbl), project.Mulv(bbl), pixels)
-
-		drawLine(project.Mulv(btl), project.Mulv(btr), pixels)
-		drawLine(project.Mulv(btr), project.Mulv(bbr), pixels)
-		drawLine(project.Mulv(bbr), project.Mulv(bbl), pixels)
-		drawLine(project.Mulv(bbl), project.Mulv(btl), pixels)
-
-		// Rotate box
-		sin2 := float32(0.0348999)
-		cos2 := float32(0.9999391)
-		rotate := matrix.FilledMatrix([][]float32{
-			{cos2, sin2, 0.0},
-			{-sin2, cos2, 0.0},
-			{0.0, 0.0, 1.0},
-		})
-
-		ftl = rotate.Mulv(ftl)
-		ftr = rotate.Mulv(ftr)
-		fbr = rotate.Mulv(fbr)
-		fbl = rotate.Mulv(fbl)
-		btl = rotate.Mulv(btl)
-		btr = rotate.Mulv(btr)
-		bbr = rotate.Mulv(bbr)
-		bbl = rotate.Mulv(bbl)
+		// Update rotation 2deg per frame
+		angle += 2.0 * (math.Pi * 2.0 / 360.0)
+		if angle > 2.0*math.Pi {
+			angle -= 2.0 * math.Pi
+		}
 
 		// Show results
 		tex.Update(nil, pixels, winWidth*4)
