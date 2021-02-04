@@ -140,25 +140,25 @@ func genericRandomMatrix(rows int, cols int, kind reflect.Kind) Matrix {
 	return matrix
 }
 
-func genericFilledMatrix(values interface{}) Matrix {
+func genericNewMatrix(values interface{}) Matrix {
 	source := reflect.ValueOf(values)
 	// Check row-level
 	kind := source.Kind()
 	if kind != reflect.Array && kind != reflect.Slice {
-		log.Fatalf("genericFilledMatrix: expected an array or slice, got %v", kind)
+		log.Fatalf("genericNewMatrix: expected an array or slice, got %v", kind)
 	}
 	rows := source.Len()
 	if rows == 0 {
-		log.Fatalf("genericFilledMatrix: cannot create with zero rows")
+		log.Fatalf("genericNewMatrix: cannot create with zero rows")
 	}
 	// Check col-level
 	kind = source.Index(0).Kind()
 	if kind != reflect.Array && kind != reflect.Slice {
-		log.Fatalf("genericFilledMatrix: expected an array or slice, got %v", kind)
+		log.Fatalf("genericNewMatrix: expected an array or slice, got %v", kind)
 	}
 	cols := source.Index(0).Len()
 	if cols == 0 {
-		log.Fatalf("genericFilledMatrix: cannot create with zero cols")
+		log.Fatalf("genericNewMatrix: cannot create with zero cols")
 	}
 
 	// Fill with the content

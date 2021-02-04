@@ -30,8 +30,7 @@ func UnitMatrix(rows int, cols int, kind reflect.Kind) Matrix {
 	return genericUnitMatrix(rows, cols, kind)
 }
 
-// FilledMatrix creates a matrix based on a number of values
-func FilledMatrix(values interface{}) Matrix {
-	return genericFilledMatrix(values)
+// NewMatrix creates a matrix based on a number of values
+func NewMatrix(values interface{}) Matrix {
+	return genericNewMatrix(values)
 }
-

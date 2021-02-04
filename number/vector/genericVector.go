@@ -88,15 +88,15 @@ func genericRandomVector(dimension int, kind reflect.Kind) Vector {
 	return v
 }
 
-func genericFilledVector(values interface{}) Vector {
+func genericNewVector(values interface{}) Vector {
 	k := reflect.TypeOf(values).Kind()
 	if k != reflect.Array && k != reflect.Slice {
-		log.Fatalf("genericFilledVector: expected an array or slice, got %v", reflect.TypeOf(values).Kind())
+		log.Fatalf("genericNewVector: expected an array or slice, got %v", reflect.TypeOf(values).Kind())
 	}
 
 	source := reflect.ValueOf(values)
 	if source.Len() == 0 {
-		log.Fatalf("genericFilledVector: cannot create from an empty array")
+		log.Fatalf("genericNewVector: cannot create from an empty array")
 	}
 
 	// Fill with the content
@@ -320,15 +320,45 @@ func (v genericVector) Sub(w Vector) Vector {
 // }
 
 // Muls multiplies a vector by a scalar.
-// func (v genericVector) Muls(s interface{}) Vector {
+// Divs divides a vector by a scalar.
+func (v genericVector) Muls(s interface{}) Vector {
 
-// 	r := Zero(v.Len())
-// 	for i := 0; i < r.Len(); i++ {
-// 		r = r.Set(i, v.Get(i).(float64)*s.(float64))
-// 	}
+	if reflect.TypeOf(s).Kind() != v.Kind() {
+		log.Fatalf("genericVector.Muls: Scalar Type %v doesn't match vector type %v", reflect.TypeOf(s).Kind(), v.Kind())
+	}
 
-// 	return r
-// }
+	r := genericZeroVector(v.Len(), v.Kind())
+	for i := 0; i < v.Len(); i++ {
+		switch v.Kind() {
+		case reflect.Int:
+			r.Set(i, v.Get(i).(int)*s.(int))
+		case reflect.Int8:
+			r.Set(i, v.Get(i).(int8)*s.(int8))
+		case reflect.Int16:
+			r.Set(i, v.Get(i).(int16)*s.(int16))
+		case reflect.Int32:
+			r.Set(i, v.Get(i).(int32)*s.(int32))
+		case reflect.Int64:
+			r.Set(i, v.Get(i).(int64)*s.(int64))
+		case reflect.Uint:
+			r.Set(i, v.Get(i).(uint)*s.(uint))
+		case reflect.Uint8:
+			r.Set(i, v.Get(i).(uint8)*s.(uint8))
+		case reflect.Uint16:
+			r.Set(i, v.Get(i).(uint16)*s.(uint16))
+		case reflect.Uint32:
+			r.Set(i, v.Get(i).(uint32)*s.(uint32))
+		case reflect.Uint64:
+			r.Set(i, v.Get(i).(uint64)*s.(uint64))
+		case reflect.Float32:
+			r.Set(i, v.Get(i).(float32)*s.(float32))
+		case reflect.Float64:
+			r.Set(i, v.Get(i).(float64)*s.(float64))
+		}
+	}
+
+	return r
+}
 
 // Divs divides a vector by a scalar.
 func (v genericVector) Divs(s interface{}) Vector {
@@ -338,7 +368,7 @@ func (v genericVector) Divs(s interface{}) Vector {
 	}
 
 	r := genericZeroVector(v.Len(), v.Kind())
-	for i := 0; i < r.Len(); i++ {
+	for i := 0; i < v.Len(); i++ {
 		switch v.Kind() {
 		case reflect.Int:
 			r.Set(i, v.Get(i).(int)/s.(int))
@@ -364,6 +394,48 @@ func (v genericVector) Divs(s interface{}) Vector {
 			r.Set(i, v.Get(i).(float32)/s.(float32))
 		case reflect.Float64:
 			r.Set(i, v.Get(i).(float64)/s.(float64))
+		}
+	}
+
+	return r
+}
+
+// Mulv implements the dot product of v and w
+func (v genericVector) Mulv(w Vector) float64 {
+	if w.Kind() != v.Kind() {
+		log.Fatalf("genericVector.Sub: kinds %v and %v do not match", v.Kind(), w.Kind())
+	}
+	if w.Len() != v.Len() {
+		log.Fatalf("genericVector.Sub: dimensions %d and %d do not match", v.Len(), w.Len())
+	}
+
+	r := float64(0.0)
+	for i := 0; i < v.Len(); i++ {
+		switch v.Kind() {
+		case reflect.Int:
+			r += float64(v.Get(i).(int)) * float64(w.Get(i).(int))
+		case reflect.Int8:
+			r += float64(v.Get(i).(int8)) * float64(w.Get(i).(int8))
+		case reflect.Int16:
+			r += float64(v.Get(i).(int16)) * float64(w.Get(i).(int16))
+		case reflect.Int32:
+			r += float64(v.Get(i).(int32)) * float64(w.Get(i).(int32))
+		case reflect.Int64:
+			r += float64(v.Get(i).(int64)) * float64(w.Get(i).(int64))
+		case reflect.Uint:
+			r += float64(v.Get(i).(uint)) * float64(w.Get(i).(uint))
+		case reflect.Uint8:
+			r += float64(v.Get(i).(uint8)) * float64(w.Get(i).(uint8))
+		case reflect.Uint16:
+			r += float64(v.Get(i).(uint16)) * float64(w.Get(i).(uint16))
+		case reflect.Uint32:
+			r += float64(v.Get(i).(uint32)) * float64(w.Get(i).(uint32))
+		case reflect.Uint64:
+			r += float64(v.Get(i).(uint64)) * float64(w.Get(i).(uint64))
+		case reflect.Float32:
+			r += float64(v.Get(i).(float32)) * float64(w.Get(i).(float32))
+		case reflect.Float64:
+			r += float64(v.Get(i).(float64)) * float64(w.Get(i).(float64))
 		}
 	}
 

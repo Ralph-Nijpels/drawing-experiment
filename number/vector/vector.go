@@ -16,8 +16,9 @@ type Vector interface {
 	//	MinD() int
 	//	Max(w Vector) Vector
 	//	MaxD() int
-	//	Muls(s interface{}) Vector
+	Muls(s interface{}) Vector
 	Divs(s interface{}) Vector
+	Mulv(w Vector) float64
 	Kind() reflect.Kind
 	Len() int
 	Get(i int) interface{}
@@ -42,10 +43,10 @@ func RandomVector(dimension int, kind reflect.Kind) Vector {
 	return genericRandomVector(dimension, kind)
 }
 
-// FilledVector creates a vector based on a list of values
-func FilledVector(f interface{}) Vector {
+// NewVector creates a vector based on a list of values
+func NewVector(f interface{}) Vector {
 	//	if len(f) == 3 {
 	//		return make3D(f)
 	//	}
-	return genericFilledVector(f)
+	return genericNewVector(f)
 }

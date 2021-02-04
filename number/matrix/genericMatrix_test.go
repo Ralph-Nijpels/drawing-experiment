@@ -8,7 +8,7 @@ import (
 )
 
 func Test_GenericFilledMatrix(t *testing.T) {
-	m := genericFilledMatrix([][]int{
+	m := genericNewMatrix([][]int{
 		{1, 2},
 		{3, 4},
 	})
@@ -19,12 +19,12 @@ func Test_GenericFilledMatrix(t *testing.T) {
 
 func Test_GenericMulv(t *testing.T) {
 	// Check the mul identity matrix for integers
-	m0 := genericFilledMatrix([][]int{
+	m0 := genericNewMatrix([][]int{
 		{1, 0, 0},
 		{0, 1, 0},
 		{0, 0, 1},
 	})
-	v := vector.FilledVector([]int{1, 2, 3})
+	v := vector.NewVector([]int{1, 2, 3})
 	r := m0.Mulv(v)
 
 	if !r.Equal(v) {
@@ -32,24 +32,24 @@ func Test_GenericMulv(t *testing.T) {
 	}
 
 	// Check the mul selection matrix for integers
-	m1 := genericFilledMatrix([][]int{
+	m1 := genericNewMatrix([][]int{
 		{1, 0, 0},
 		{1, 0, 0},
 		{1, 0, 0},
 	})
 	r = m1.Mulv(v)
-	if !r.Equal(vector.FilledVector([]int{1, 1, 1})) {
-		t.Errorf("Expected %v, got %v", vector.FilledVector([]int{1, 1, 1}), r)
+	if !r.Equal(vector.NewVector([]int{1, 1, 1})) {
+		t.Errorf("Expected %v, got %v", vector.NewVector([]int{1, 1, 1}), r)
 	}
 
 	// Check the mul as a simple projection for integers
-	m2 := genericFilledMatrix([][]int{
+	m2 := genericNewMatrix([][]int{
 		{1, 0, 1},
 		{0, 1, 1},
 	})
 	r = m2.Mulv(v)
-	if !r.Equal(vector.FilledVector([]int{4, 5})) {
-		t.Errorf("Expected %v, got %v", vector.FilledVector([]int{4, 5}), r)
+	if !r.Equal(vector.NewVector([]int{4, 5})) {
+		t.Errorf("Expected %v, got %v", vector.NewVector([]int{4, 5}), r)
 	}
 }
 
